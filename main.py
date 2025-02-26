@@ -1,6 +1,47 @@
 import webview
 import json
 import os
+import tkinter as tk
+
+def get_credentials(pos_x=None, pos_y=None):
+    if os.path.exists("credentials.json"):
+        try:
+            with open("credentials.json", "r") as f:
+                creds = json.load(f)
+            return creds.get("username"), creds.get("password")
+        except Exception:
+            pass
+    # Create a hidden root window
+    root = tk.Tk()
+    root.withdraw()
+    # Create the credentials popup
+    popup = tk.Toplevel()
+    popup.title("Anmeldedaten")
+    # Position the popup over the 3CX window (fallback to 100,100)
+    if pos_x is not None and pos_y is not None:
+        popup.geometry(f"300x150+{pos_x}+{pos_y}")
+    else:
+        popup.geometry("300x150+100+100")
+    popup.resizable(False, False)
+    popup.attributes("-topmost", True)
+    # Layout the form
+    tk.Label(popup, text="Benutzername:").pack(pady=(10, 0))
+    entry_user = tk.Entry(popup, width=30)
+    entry_user.pack(pady=(0, 10))
+    tk.Label(popup, text="Passwort:").pack()
+    entry_pass = tk.Entry(popup, width=30, show="*")
+    entry_pass.pack(pady=(0, 10))
+    credentials = {}
+    def submit():
+        credentials["username"] = entry_user.get()
+        credentials["password"] = entry_pass.get()
+        popup.destroy()
+    tk.Button(popup, text="Speichern", command=submit).pack(pady=(10, 0))
+    popup.wait_window()
+    root.destroy()
+    with open("credentials.json", "w") as f:
+        json.dump(credentials, f)
+    return credentials["username"], credentials["password"]
 
 def enhance_performance_and_disable_audio(window):
     js_code = """
@@ -35,6 +76,31 @@ def enhance_performance_and_disable_audio(window):
     """
     window.evaluate_js(js_code)
 
+def auto_fill_credentials(window):
+    try:
+        pos = window.gui.get_position(window.uid)
+        pos_x, pos_y = pos if pos and len(pos) >= 2 else (100, 100)
+    except Exception:
+        pos_x, pos_y = (100, 100)
+    username, password = get_credentials(pos_x, pos_y)
+    js_code = f"""
+    (function() {{
+        var userField = document.querySelector('#loginInput');
+        var passField = document.querySelector('#passwordInput');
+        if(userField && passField) {{
+            userField.value = "{username}";
+            passField.value = "{password}";
+        }}
+        setTimeout(function() {{
+            var submitBtn = document.querySelector('#submitBtn');
+            if(submitBtn) {{
+                submitBtn.click();
+            }}
+        }}, 1000);
+    }})();
+    """
+    window.evaluate_js(js_code)
+
 def load_window_state():
     if os.path.exists("window_state.json"):
         try:
@@ -66,7 +132,9 @@ def start_app():
     y = state.get("y")
     width = state.get("width", 800)
     height = state.get("height", 600)
-    window = webview.create_window("3CX - App Client", "https://pegasoft-gmbh.on3cx.de:5001/", x=x, y=y, width=width, height=height, resizable=True)
+    window = webview.create_window("3CX - App Client", "https://pegasoft-gmbh.on3cx.de:5001/", 
+                                   x=x, y=y, width=width, height=height, resizable=True)
+    window.events.loaded += lambda: auto_fill_credentials(window)
     window.events.closing += lambda: save_window_state(window)
     webview.start(enhance_performance_and_disable_audio, window, gui='edgechromium')
 
