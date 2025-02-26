@@ -3,28 +3,29 @@ import json
 import os
 import tkinter as tk
 
+BASE_DIR = os.path.join(os.path.expanduser("~"), "3cx_app_data")
+if not os.path.exists(BASE_DIR):
+    os.makedirs(BASE_DIR)
+
 def get_credentials(pos_x=None, pos_y=None):
-    if os.path.exists("credentials.json"):
+    cred_file = os.path.join(BASE_DIR, "credentials.json")
+    if os.path.exists(cred_file):
         try:
-            with open("credentials.json", "r") as f:
+            with open(cred_file, "r") as f:
                 creds = json.load(f)
             return creds.get("username"), creds.get("password")
         except Exception:
             pass
-    # Create a hidden root window
     root = tk.Tk()
     root.withdraw()
-    # Create the credentials popup
     popup = tk.Toplevel()
     popup.title("Anmeldedaten")
-    # Position the popup over the 3CX window (fallback to 100,100)
     if pos_x is not None and pos_y is not None:
         popup.geometry(f"300x150+{pos_x}+{pos_y}")
     else:
         popup.geometry("300x150+100+100")
     popup.resizable(False, False)
     popup.attributes("-topmost", True)
-    # Layout the form
     tk.Label(popup, text="Benutzername:").pack(pady=(10, 0))
     entry_user = tk.Entry(popup, width=30)
     entry_user.pack(pady=(0, 10))
@@ -39,7 +40,7 @@ def get_credentials(pos_x=None, pos_y=None):
     tk.Button(popup, text="Speichern", command=submit).pack(pady=(10, 0))
     popup.wait_window()
     root.destroy()
-    with open("credentials.json", "w") as f:
+    with open(cred_file, "w") as f:
         json.dump(credentials, f)
     return credentials["username"], credentials["password"]
 
@@ -102,15 +103,17 @@ def auto_fill_credentials(window):
     window.evaluate_js(js_code)
 
 def load_window_state():
-    if os.path.exists("window_state.json"):
+    state_file = os.path.join(BASE_DIR, "window_state.json")
+    if os.path.exists(state_file):
         try:
-            with open("window_state.json", "r") as f:
+            with open(state_file, "r") as f:
                 return json.load(f)
         except Exception:
             return {}
     return {}
 
 def save_window_state(window):
+    state_file = os.path.join(BASE_DIR, "window_state.json")
     try:
         pos = window.gui.get_position(window.uid)
         x, y = pos if pos and len(pos) >= 2 else (None, None)
@@ -122,7 +125,7 @@ def save_window_state(window):
     except Exception:
         width, height = 800, 600
     state = {"x": x, "y": y, "width": width, "height": height}
-    with open("window_state.json", "w") as f:
+    with open(state_file, "w") as f:
         json.dump(state, f)
     print("Window state saved:", state)
 
@@ -132,7 +135,7 @@ def start_app():
     y = state.get("y")
     width = state.get("width", 800)
     height = state.get("height", 600)
-    window = webview.create_window("3CX - App Client", "https://pegasoft-gmbh.on3cx.de:5001/", 
+    window = webview.create_window("3CX - App Client", "https://pegasoft-gmbh.on3cx.de:5001/",
                                    x=x, y=y, width=width, height=height, resizable=True)
     window.events.loaded += lambda: auto_fill_credentials(window)
     window.events.closing += lambda: save_window_state(window)
