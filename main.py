@@ -135,7 +135,7 @@ def start_app():
     y = state.get("y")
     width = state.get("width", 800)
     height = state.get("height", 600)
-    window = webview.create_window("3CX - App Client", "https://pegasoft-gmbh.on3cx.de:5001/",
+
                                    x=x, y=y, width=width, height=height, resizable=True)
     window.events.loaded += lambda: auto_fill_credentials(window)
     window.events.closing += lambda: save_window_state(window)
