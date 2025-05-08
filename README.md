@@ -15,6 +15,7 @@ Planned features and improvements for future versions:
 
 - [ ] 🔗 Support for handling `tel:` links from external apps and browsers
 - [ ] 🔗 Custom Icon
+- [ ] 🔗 Multi Language Support
       
 ## 📦 How to Install
 
