@@ -35,7 +35,7 @@ Planned features and improvements for future versions:
 
 2. When the app opens:
    - It auto-fills your login credentials  
-   - It opens the dialer panel automatically  
+
 
 > ⚠️ Gatekeeper warning is expected unless the app is notarized. Your coworker should right-click → Open → Confirm once.
 
