@@ -19,7 +19,7 @@ Planned features and improvements for future versions:
       
 ## 📦 How to Install
 
-1. Download the latest `.dmg` from the [Releases](https://github.com/Migrim/3cx-Call/releases) section.  
+1. Download the latest `.dmg` from the [Releases](https://github.com/Migrim/3cx-Dialer/releases) section.  
 2. Open the `.dmg` and drag the app to your Applications folder.  
 3. The first time you open it, right-click the app and select **"Open"**, then confirm the warning. This is required because it's not notarized by Apple.
 
