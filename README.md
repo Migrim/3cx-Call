@@ -3,6 +3,8 @@
 A minimal macOS desktop app that embeds the 3CX web client in a native `.app` using Python + PyQt6.  
 It supports automatic login, clipboard dialing, language switching, and start page selection.
 
+![client](https://github.com/user-attachments/assets/876c694e-45e9-48f1-a465-87bc14fd3c9e)
+
 ## 🔧 Features
 
 - ✅ Automatically logs into your 3CX web client using stored credentials  
